@@ -503,6 +503,17 @@ def _selected_context_tool() -> str:
     default=None,
     help=("API key for hosted Qdrant (e.g. Qdrant Cloud). Also reads HEADROOM_QDRANT_API_KEY."),
 )
+# Content Verification (auto-fetch links, OCR screenshots)
+@click.option(
+    "--verify-content",
+    is_flag=True,
+    envvar="HEADROOM_VERIFY_CONTENT",
+    help=(
+        "Auto-fetch URLs and OCR screenshots posted in chat messages, then inject "
+        "the extracted content as context so the LLM can verify or research the material. "
+        "Env: HEADROOM_VERIFY_CONTENT."
+    ),
+)
 # Traffic Learning (live pattern extraction from proxy traffic)
 @click.option(
     "--learn",
@@ -690,6 +701,7 @@ def proxy(
     stateless: bool,
     embedding_server: bool,
     embedding_server_socket: str | None,
+    verify_content: bool,
 ) -> None:
     """Start the optimization proxy server.
 
@@ -924,6 +936,10 @@ def proxy(
             anthropic_pre_upstream_memory_context_timeout_seconds
             if anthropic_pre_upstream_memory_context_timeout_seconds is not None
             else 2.0
+        ),
+        verify_links_and_screenshots=(
+            verify_content
+            or os.environ.get("HEADROOM_VERIFY_CONTENT", "").lower() in ("true", "1", "yes", "on")
         ),
     )
 

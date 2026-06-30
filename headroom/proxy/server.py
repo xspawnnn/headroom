@@ -558,6 +558,17 @@ class HeadroomProxy(
     def __init__(self, config: ProxyConfig):
         self.config = config
         self.config.mode = normalize_proxy_mode(self.config.mode)
+
+        # Wire up content-verification hook when requested.
+        if config.verify_links_and_screenshots:
+            try:
+                from headroom.verify import make_verify_hook
+
+                config.hooks = make_verify_hook(config.hooks)
+                logger.info("content verification hook enabled (links + screenshots)")
+            except Exception as exc:
+                logger.warning("failed to enable content verification hook: %s", exc)
+
         pipeline_extensions = list(config.pipeline_extensions or [])
         probe_recorder = probe_recorder_from_env()
         if probe_recorder is not None:

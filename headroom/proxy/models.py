@@ -289,6 +289,12 @@ class ProxyConfig:
     pipeline_extensions: list[Any] = field(default_factory=list)
     discover_pipeline_extensions: bool = True
 
+    # Content verification — auto-fetch linked URLs and OCR screenshots
+    # posted in user messages, then inject the extracted text as context
+    # before the LLM sees the request.  CLI: --verify-content;
+    # env: HEADROOM_VERIFY_CONTENT=1.
+    verify_links_and_screenshots: bool = False
+
     # Subscription Window Tracking (Anthropic OAuth accounts)
     subscription_tracking_enabled: bool = True
     subscription_poll_interval_s: int = 300
